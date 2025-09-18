@@ -109,8 +109,8 @@ body {
 }
 
 .prose pre {
-  background-color: #1f2937;
-  color: #f9fafb;
+  background-color: #f3f4f6; /* light gray */
+  color: #111827; /* near-black text */
   padding: 1rem;
   border-radius: 0.5rem;
   overflow-x: auto;

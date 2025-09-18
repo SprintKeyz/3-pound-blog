@@ -17,24 +17,33 @@ export default async function Home() {
           </div>
         ) : (
           <div className="max-w-4xl mx-auto space-y-12">
-            {posts.map((post) => (
-              <article key={post.id} className="bg-white rounded-lg shadow-md p-8">
-                {post.data.title && (
-                  <h2 className="text-3xl font-bold mb-4 text-gray-800">
-                    {post.data.title}
-                  </h2>
-                )}
-                {post.data.date && (
-                  <p className="text-gray-500 mb-6">
-                    {new Date(post.data.date).toLocaleDateString()}
-                  </p>
-                )}
-                <div 
-                  className="prose prose-lg max-w-none"
-                  dangerouslySetInnerHTML={{ __html: post.content }}
-                />
-              </article>
-            ))}
+            {posts
+              .sort(
+                (a, b) =>
+                  new Date(b.data.date ?? '').getTime() - new Date(a.data.date ?? '').getTime()
+              )
+              .map((post) => {
+                // Strip HTML to count words
+                const textOnly = post.content.replace(/<[^>]*>/g, '');
+                const wordCount = textOnly.split(/\s+/).filter(Boolean).length;
+
+                return (
+                  <article key={post.id} className="bg-white rounded-lg shadow-md p-8">
+                    {post.data.title && (
+                      <h2 className="text-3xl font-bold mb-2 text-gray-800">{post.data.title}</h2>
+                    )}
+                    <div className="flex items-center text-gray-500 mb-6 space-x-2 text-sm">
+                      {post.data.date && <span>{new Date(post.data.date).toLocaleDateString()}</span>}
+                      <span>|</span>
+                      <span>{wordCount} words</span>
+                    </div>
+                    <div
+                      className="prose prose-lg max-w-none"
+                      dangerouslySetInnerHTML={{ __html: post.content }}
+                    />
+                  </article>
+                );
+              })}
           </div>
         )}
       </main>
