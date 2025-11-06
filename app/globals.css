@@ -109,8 +109,8 @@ body {
 }
 
 .prose pre {
-  background-color: #f3f4f6; /* light gray */
-  color: #111827; /* near-black text */
+  background-color: #f3f4f6;
+  color: #111827;
   padding: 1rem;
   border-radius: 0.5rem;
   overflow-x: auto;
@@ -121,4 +121,22 @@ body {
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
   margin: 1.5rem 0;
+}
+
+/* Dark mode overrides for prose elements */
+@media (prefers-color-scheme: dark) {
+  .prose blockquote {
+    border-left-color: #374151;
+    color: #9ca3af;
+  }
+
+  .prose code {
+    background-color: #1f2937;
+    color: #e5e7eb;
+  }
+
+  .prose pre {
+    background-color: #1f2937;
+    color: #e5e7eb;
+  }
 }
