@@ -37,10 +37,10 @@ export default async function Home() {
                       <span>|</span>
                       <span>{wordCount} words</span>
                     </div>
-                    <div
-                      className="prose prose-lg max-w-none"
-                      dangerouslySetInnerHTML={{ __html: post.content }}
-                    />
+<div
+  className="prose prose-lg max-w-none dark:prose-invert"
+  dangerouslySetInnerHTML={{ __html: post.content }}
+/>
                   </article>
                 );
               })}
