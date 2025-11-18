@@ -3,6 +3,10 @@ import path from 'path';
 import matter from 'gray-matter';
 import { remark } from 'remark';
 import html from 'remark-html';
+import remarkParse from 'remark-parse';
+import remarkBreaks from 'remark-breaks';
+import { visit } from 'unist-util-visit';
+import { Node } from 'unist';
 
 const postsDirectory = path.join(process.cwd(), 'posts');
 
@@ -11,51 +15,71 @@ export interface Post {
   content: string;
   data: {
     title?: string;
+    week?: string;
     date?: string;
     [key: string]: any;
   };
 }
 
+// --------------------------
+// Plugin: sets image width
+// --------------------------
+function remarkImageWidth() {
+  return (tree: Node) => {
+    visit(tree, 'image', (node: any) => {
+      if (!node.data) node.data = {};
+      if (!node.data.hProperties) node.data.hProperties = {};
+
+      // Check for manual width in Markdown title
+      if (node.title && node.title.includes('width=')) {
+        const match = node.title.match(/width\s*=\s*(\d+%?)/i);
+        if (match) {
+          node.data.hProperties.width = match[1];
+          return;
+        }
+      }
+
+      // Default width if none specified
+      node.data.hProperties.width = '75%';
+    });
+  };
+}
+
 export async function getAllPosts(): Promise<Post[]> {
-  // Ensure posts directory exists
   if (!fs.existsSync(postsDirectory)) {
     fs.mkdirSync(postsDirectory, { recursive: true });
     return [];
   }
 
-  const fileNames = fs.readdirSync(postsDirectory);
-  const markdownFiles = fileNames.filter(name => name.endsWith('.md'));
+  const fileNames = fs.readdirSync(postsDirectory).filter((name) => name.endsWith('.md'));
 
-  const allPostsData = await Promise.all(
-    markdownFiles.map(async (fileName) => {
+  const posts = await Promise.all(
+    fileNames.map(async (fileName) => {
       const id = fileName.replace(/\.md$/, '');
       const fullPath = path.join(postsDirectory, fileName);
       const fileContents = fs.readFileSync(fullPath, 'utf8');
 
-      // Use gray-matter to parse the post metadata section
       const matterResult = matter(fileContents);
 
-      // Use remark to convert markdown into HTML string
       const processedContent = await remark()
+        .use(remarkParse)
+        .use(remarkBreaks)
+        .use(remarkImageWidth) // <-- plugin applied here
         .use(html)
         .process(matterResult.content);
-      const content = processedContent.toString();
 
       return {
         id,
-        content,
+        content: processedContent.toString(),
         data: matterResult.data,
       };
     })
   );
 
-  // Sort posts by filename (1.md, 2.md, etc.)
-  return allPostsData.sort((a, b) => {
+  return posts.sort((a, b) => {
     const aNum = parseInt(a.id);
     const bNum = parseInt(b.id);
-    if (!isNaN(aNum) && !isNaN(bNum)) {
-      return aNum - bNum;
-    }
+    if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
     return a.id.localeCompare(b.id);
   });
 }

@@ -19,8 +19,40 @@
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Force sane spacing for post content — will override resets or Tailwind typography quirks */
+.post-content > * + * {
+  margin-top: 1rem; /* adjust to taste (1rem = 16px) */
 }
+
+/* Also ensure paragraphs themselves have margins if they are not direct children */
+.post-content p {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Higher specificity to beat resets */
+.post-content p,
+.post-content h1,
+.post-content h2,
+.post-content h3,
+.post-content h4,
+.post-content h5,
+.post-content h6,
+.post-content ul,
+.post-content ol,
+.post-content pre,
+.post-content blockquote {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+
+/* If your content wrapper has a class like .post-content */
+.post-content img {
+  border-radius: 0.5rem; /* same as Tailwind 'rounded' */
+  display: block;         /* ensures margin auto works */
+  margin: 1rem 0;      /* centers image with vertical spacing */
+  max-width: 100%;        /* makes images responsive */
+  height: auto;           /* preserves aspect ratio */
+}
+
